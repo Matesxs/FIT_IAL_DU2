@@ -449,6 +449,14 @@ void bst_leftmost_postorder(bst_node_t *tree, stack_bst_t *to_visit,
                             stack_bool_t *first_visit) 
 {
   if (tree == NULL) return;
+
+  bst_node_t *current = tree;
+  while (current != NULL)
+  {
+    stack_bst_push(to_visit, current);
+    stack_bool_push(first_visit, true);
+    current = current->left;
+  }
 }
 
 /*
@@ -462,4 +470,28 @@ void bst_leftmost_postorder(bst_node_t *tree, stack_bst_t *to_visit,
 void bst_postorder(bst_node_t *tree) 
 {
   if (tree == NULL) return;
+
+  stack_bst_t toVisitStack;
+  stack_bst_init(&toVisitStack);
+  stack_bool_t firstVisitFlagStack;
+  stack_bool_init(&firstVisitFlagStack);
+  bool fromLeft = false;
+
+  bst_leftmost_postorder(tree, &toVisitStack, &firstVisitFlagStack);
+
+  while (!stack_bst_empty(&toVisitStack))
+  {
+    bst_node_t *tmp = stack_bst_top(&toVisitStack);
+    fromLeft = stack_bool_pop(&firstVisitFlagStack);
+
+    if (fromLeft)
+    {
+      stack_bool_push(&firstVisitFlagStack, false);
+      bst_leftmost_postorder(tmp->right, &toVisitStack, &firstVisitFlagStack);
+    }
+    else
+    {
+      bst_print_node(stack_bst_pop(&toVisitStack));
+    }
+  }
 }
